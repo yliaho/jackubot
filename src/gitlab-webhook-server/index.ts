@@ -60,16 +60,21 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
     serverResponse: ServerResponse
   ): Promise<void> {
     if (incomingMessage.url !== this.config.url) {
+      serverResponse.writeHead(400)
+      serverResponse.end()
       return
     }
 
-    serverResponse.writeHead(201)
-    serverResponse.end()
+    try {
+      serverResponse.writeHead(201)
 
-    const object = this.handleHookObjectKind(
-      await this.readIncomingMessage<BaseHook>(incomingMessage)
-    )
-    this.eventEmitter.emit('hook', object)
+      const object = this.handleHookObjectKind(
+        await this.readIncomingMessage<BaseHook>(incomingMessage)
+      )
+      this.eventEmitter.emit('hook', object)
+    } finally {
+      serverResponse.end()
+    }
   }
 
   private handleHookObjectKind(result: Partial<BaseHook>) {

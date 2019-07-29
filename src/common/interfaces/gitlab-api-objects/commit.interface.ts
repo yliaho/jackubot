@@ -14,7 +14,7 @@ export interface Commit {
   author_name: string
   author_email: string
   authored_date: Date
-  commiter_name: string
+  committer_name: string
   committer_email: string
   committed_date: Date
   stats: CommitStats

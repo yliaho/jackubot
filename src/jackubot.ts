@@ -44,9 +44,10 @@ export class JackuBot {
     this.discordMessenger.executeWebhookMessage({
       content:
         `${data.user_name} pushed to branch ` +
-        `${data.ref.split('/')[2]} of ` +
+        `\`${data.ref.split('/')[2]}\` of ` +
         `${data.project.name}`,
-      embeds: [{ fields }]
+      avatar_url: data.user_avatar,
+      embeds: [{ color: 0xfca326, fields }]
     })
   }
 
@@ -55,12 +56,12 @@ export class JackuBot {
   ): DiscordEmbedField[] {
     return commits.map(commit => ({
       name:
-        commit.commiter_name === commit.author_name
+        commit.committer_name === commit.author_name
           ? `${commit.author_name}`
-          : `${commit.author_name} with ${commit.commiter_name}`,
-      value: `\`${commit.id.slice(0, 8)}\` – ${commit.title} (+${
+          : `${commit.author_name} with ${commit.committer_name}`,
+      value: `\`${commit.id.slice(0, 8)}\` – ${commit.title} **(+${
         commit.stats.additions
-      } | -${commit.stats.deletions})`
+      } | -${commit.stats.deletions})** – [diff](${commit.url})`
     }))
   }
 }

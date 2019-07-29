@@ -2,3 +2,4 @@
 /dist/
 example.json
 start.sh
+.env

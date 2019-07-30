@@ -11,7 +11,18 @@ export class HTTPMessageHandler {
           stream.push(chunk)
         })
         .on('end', () => {
-          resolve(JSON.parse(Buffer.concat(stream).toString()))
+          try {
+            const string: string = Buffer.concat(stream).toString()
+
+            resolve(JSON.parse(string))
+          } catch (err) {
+            console.warn(
+              `${
+                HTTPMessageHandler.name
+              }: unable to parse request data. Input is not valid JSON.`
+            )
+            return
+          }
         })
         .on('error', () => {
           reject(

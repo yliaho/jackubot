@@ -9,6 +9,7 @@ import { PushHook, BaseHook } from './interfaces/gitlab-objects'
 import { HTTPMessageHandler } from '@/http-message-handler/'
 import { EventEmitter } from 'events'
 import mergeDeepRight from '@ramda/mergedeepright'
+import { HttpException } from './exceptions/http.exception'
 
 const defaultConfig: Partial<GitLabWebhookServerConfig> = {
   allowPrivateRepositories: false,
@@ -31,8 +32,21 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
     this.config = mergeDeepRight(defaultConfig, config)
     privates.set(this, privateValues)
 
-    const server: Server = createServer((...args) =>
-      this.handleRequest(...args)
+    const server: Server = createServer(
+      async (incomingMessage, serverResponse) => {
+        try {
+          await this.handleRequest(incomingMessage, serverResponse)
+          serverResponse.writeHead(200)
+          serverResponse.end()
+        } catch (err) {
+          console.error(err)
+
+          serverResponse.writeHead(
+            err instanceof HttpException ? err.getStatus() : 500
+          )
+          serverResponse.end()
+        }
+      }
     )
 
     this.eventEmitter.on('hook', object => {
@@ -59,22 +73,28 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
     incomingMessage: IncomingMessage,
     serverResponse: ServerResponse
   ): Promise<void> {
-    if (incomingMessage.url !== this.config.url) {
-      serverResponse.writeHead(400)
-      serverResponse.end()
-      return
-    }
-
-    try {
-      serverResponse.writeHead(200)
-
-      const object = this.handleHookObjectKind(
-        await this.readIncomingMessage<BaseHook>(incomingMessage)
+    if (
+      privates.get(this).secretToken &&
+      incomingMessage.headers['x-gitlab-token'] !==
+        privates.get(this).secretToken
+    ) {
+      throw new HttpException(
+        `${GitLabWebhookServer.name}: Invalid secret token.`,
+        401
       )
-      this.eventEmitter.emit('hook', object)
-    } finally {
-      serverResponse.end()
     }
+
+    if (incomingMessage.url !== this.config.url) {
+      throw new HttpException(
+        `${GitLabWebhookServer.name}: resource not found`,
+        404
+      )
+    }
+
+    const object = this.handleHookObjectKind(
+      await this.readIncomingMessage<BaseHook>(incomingMessage)
+    )
+    this.eventEmitter.emit('hook', object)
   }
 
   private handleHookObjectKind(result: Partial<BaseHook>) {

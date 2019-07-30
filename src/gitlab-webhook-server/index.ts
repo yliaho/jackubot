@@ -66,7 +66,7 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
     }
 
     try {
-      serverResponse.writeHead(201)
+      serverResponse.writeHead(200)
 
       const object = this.handleHookObjectKind(
         await this.readIncomingMessage<BaseHook>(incomingMessage)

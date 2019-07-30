@@ -26,9 +26,9 @@ export class DiscordMessenger {
 
   public async executeWebhookMessage(payload: WebhookPayload) {
     const k = await fetch(
-      `https://discordapp.com/api/webhooks/${this.config.webhookId}/${
-        this.config.webhookToken
-      }`,
+      `https://discordapp.com/api/webhooks/` +
+        `${this.config.webhookId}/` +
+        `${this.config.webhookToken}`,
       {
         method: 'POST',
         body: JSON.stringify(payload),

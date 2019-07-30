@@ -11,19 +11,19 @@ export interface DiscordEmbed {
   color: string | number
   timestamp: Date
   footer: {
-    icon_url: string
-    text: string
+    icon_url?: string
+    text?: string
   }
   thumbnail: {
-    url: string
+    url?: string
   }
   image: {
-    url: string
+    url?: string
   }
   author: {
-    name: string
-    url: string
-    icon_url: string
+    name?: string
+    url?: string
+    icon_url?: string
   }
   fields: DiscordEmbedField[]
 }

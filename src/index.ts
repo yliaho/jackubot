@@ -6,7 +6,8 @@ try {
     gitlab: {
       allowPrivateRepositories: true,
       privates: {
-        privateToken: process.env.GITLAB_PRIVATE_TOKEN
+        privateToken: process.env.GITLAB_PRIVATE_TOKEN,
+        secretToken: process.env.GITLAB_SECRET_TOKEN
       }
     },
     discord: {

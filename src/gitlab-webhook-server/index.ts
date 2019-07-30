@@ -9,7 +9,7 @@ import { PushHook, BaseHook } from './interfaces/gitlab-objects'
 import { HTTPMessageHandler } from '@/http-message-handler/'
 import { EventEmitter } from 'events'
 import mergeDeepRight from '@ramda/mergedeepright'
-import { HttpException } from './exceptions/http.exception'
+import { HttpException } from './exceptions/'
 
 const defaultConfig: Partial<GitLabWebhookServerConfig> = {
   allowPrivateRepositories: false,
@@ -39,7 +39,7 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
           serverResponse.writeHead(200)
           serverResponse.end()
         } catch (err) {
-          console.error(err)
+          console.error(err instanceof HttpException ? err.getResponse() : err)
 
           serverResponse.writeHead(
             err instanceof HttpException ? err.getStatus() : 500
@@ -79,7 +79,7 @@ export class GitLabWebhookServer extends HTTPMessageHandler {
         privates.get(this).secretToken
     ) {
       throw new HttpException(
-        `${GitLabWebhookServer.name}: Invalid secret token.`,
+        `${GitLabWebhookServer.name}: invalid secret token.`,
         401
       )
     }

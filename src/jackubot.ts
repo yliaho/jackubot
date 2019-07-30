@@ -71,7 +71,7 @@ export class JackuBot {
       value:
         `[\`${commit.id.slice(0, 8)}\`](${commit.url}) ` +
         `– ${commit.title} ` +
-        `– **(+${commit.stats.additions} | -${commit.stats.deletions})**)`
+        `– **(+${commit.stats.additions} | -${commit.stats.deletions})**`
     }))
   }
 }
